@@ -15,32 +15,32 @@ public class MySQL {
 		// TODO : Anything
 	}
 	
-	public PlayerData getPlayer(UUID id){
+	public static PlayerData getPlayer(UUID id){
 		// TODO : Anything
 		return null;
 	}
 	
-	public ArrayList<PlayerData> getPlayersFromTeam(TeamData td){
+	public static ArrayList<PlayerData> getPlayersFromTeam(TeamData td){
 		// TODO : Anything
 		return null;
 	}
 	
-	public TeamData getTeam(int id){
+	public static TeamData getTeam(int id){
 		// TODO : Anything
 		return null;
 	}
 	
-	public ArrayList<TeamData> getAllTeams(){
+	public static ArrayList<TeamData> getAllTeams(){
 		// TODO : Anything
 		return null;
 	}
 	
-	public ArrayList<BeaconData> getBeaconsFromTeam(TeamData td){
+	public static ArrayList<BeaconData> getBeaconsFromTeam(TeamData td){
 		// TODO : Anything
 		return null;
 	}
 	
-	public BeaconData getBeaconFromBlock(Block block){
+	public static BeaconData getBeaconFromBlock(Block block){
 		// TODO : Anything
 		return null;
 	}
