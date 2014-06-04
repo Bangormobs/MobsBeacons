@@ -62,13 +62,13 @@ public abstract class Event {
 	public void bailAllBlocks(){
 		// Do all non-attached blocks - solid whole blocks.
 		for(BlockData bd : blockEdits){
-			if(!bd.attachable){
+			if(!bd.attached){
 				bd.setBlock();
 			}
 		}
 		// Do all attached blocks - signs, lights. Things that will fall off without support
 		for(BlockData bd : blockEdits){
-			if(bd.attachable){
+			if(bd.attached){
 				bd.setBlock();
 			}
 		}
