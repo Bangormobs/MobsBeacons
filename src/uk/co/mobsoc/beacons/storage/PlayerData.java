@@ -5,7 +5,6 @@ import java.util.UUID;
 public class PlayerData {
 	private UUID ident;
 	private String name;
-	private int id;
 	private int team=-1;
 	public UUID getIdent() {
 		return ident;
@@ -18,12 +17,6 @@ public class PlayerData {
 	}
 	public void setName(String name) {
 		this.name = name;
-	}
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
 	}
 	public int getTeamId() {
 		return team;
