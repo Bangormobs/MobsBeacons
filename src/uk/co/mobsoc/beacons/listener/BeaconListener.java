@@ -161,6 +161,7 @@ public class BeaconListener implements Listener{
 		TeamData td = getTeamFromBlock(event.getBlocks().get(0));
 		for(Block b : event.getBlocks()){
 			TeamData td2 = getTeamFromBlock(b);
+			if(isAboveBeacon(b)){ event.setCancelled(true); return; }
 			if(isBeacon(b)){ event.setCancelled(true); return; }
 			if(td2.getTeamId() != td.getTeamId()){
 				event.setCancelled(true);
