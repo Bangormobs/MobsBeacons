@@ -1,6 +1,7 @@
 package uk.co.mobsoc.beacons.listener;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,6 +13,7 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 
@@ -192,6 +194,18 @@ public class BeaconListener implements Listener{
 		}
 	}
 	
+	@EventHandler
+	public void onBlocksExpolode(EntityExplodeEvent event){
+		// TODO - test and see if the remove statement commented out is needed
+		Iterator<Block> iter = event.blockList().iterator();
+		while(iter.hasNext()){
+			Block b = iter.next();
+			if(isBeacon(b)){
+				iter.remove();
+				//event.blockList().remove(b);
+			}
+		}
+	}
 	
 	// Respawning after death
 	
