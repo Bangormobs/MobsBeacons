@@ -15,6 +15,7 @@ public class BeaconData {
 	private int beacony;
 	private int teamId=-1;
 	private int radius=7; // Random between 7 and 12
+	// Should be 40 always for bases
 	public int getTeamId() {
 		return teamId;
 	}
@@ -40,6 +41,23 @@ public class BeaconData {
 			beaconx = block.getX();
 			beacony = block.getY();
 			beaconz = block.getZ();
+		}
+	}
+	
+	public boolean isInsideRadius(Block block){
+		int tx = block.getX();
+		int tz = block.getZ();
+		Block beacon = getBeacon();
+		int bx = beacon.getX();
+		int bz = beacon.getZ();
+		int rad = getRadius();
+		if(tx < bx - rad || tx > bx + rad ||
+		   tz < bz - rad || tz > bz + rad){
+			// Outside of this beacon area
+			return false;
+		}else{
+			// Inside this beacon area
+			return true;
 		}
 	}
 	
