@@ -17,7 +17,9 @@ import org.bukkit.block.Block;
  *
  */
 public class MySQL {
-	private static PreparedStatement getPlayer, getPlayersFromTeam, getTeam, getAllTeams, getBeaconsFromTeam, getBeaconFromBlock;
+	private static PreparedStatement getPlayer, getPlayersFromTeam;
+	private static PreparedStatement getTeam, getAllTeams;
+	private static PreparedStatement getBeaconsFromTeam, getBeaconFromBlock, getAllBeacons;
 	
 	public static void prepareMySQL(String IP, String userName, String passWord, String dataBase){
 		Statement stat;
@@ -57,6 +59,7 @@ public class MySQL {
 			String BeaconDataValues = "`x`, `y`, `z`, `team`, `radius`";
 			getBeaconsFromTeam = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons` WHERE `team`=?");
 			getBeaconFromBlock = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons` WHERE `x` = ? AND `y` = ? AND `z` = ?");
+			getAllBeacons = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons`");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -116,5 +119,10 @@ public class MySQL {
         }
         UUID u = new UUID(msb, lsb);
 		return u;
+	}
+
+	public static ArrayList<BeaconData> getAllBeacons() {
+		// TODO Anything
+		return null;
 	}
 }
