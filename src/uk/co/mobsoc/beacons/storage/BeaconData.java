@@ -1,5 +1,8 @@
 package uk.co.mobsoc.beacons.storage;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
@@ -16,6 +19,20 @@ public class BeaconData {
 	private int teamId=-1;
 	private int radius=7; // Random between 7 and 12
 	// Should be 40 always for bases
+	public BeaconData(ResultSet rs){
+		try {
+			beaconx = rs.getInt(1);
+			beacony = rs.getInt(2);
+			beaconz = rs.getInt(3);
+			teamId = rs.getInt(4);
+			radius = rs.getInt(5);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	public BeaconData(){
+		
+	}
 	public int getTeamId() {
 		return teamId;
 	}
