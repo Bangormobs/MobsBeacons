@@ -3,9 +3,11 @@ package uk.co.mobsoc.beacons.storage;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.block.Block;
@@ -17,9 +19,10 @@ import org.bukkit.block.Block;
  *
  */
 public class MySQL {
+	private static Random rand = new Random();
 	private static PreparedStatement getPlayer, getPlayersFromTeam;
 	private static PreparedStatement getTeam, getAllTeams;
-	private static PreparedStatement getBeaconsFromTeam, getBeaconFromBlock, getAllBeacons;
+	private static PreparedStatement getBeaconsFromTeam, getBeaconFromBlock, getAllBeacons, insertBeacon;
 	
 	public static void prepareMySQL(String IP, String userName, String passWord, String dataBase){
 		Statement stat;
@@ -60,14 +63,23 @@ public class MySQL {
 			getBeaconsFromTeam = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons` WHERE `team`=?");
 			getBeaconFromBlock = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons` WHERE `x` = ? AND `y` = ? AND `z` = ?");
 			getAllBeacons = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons`");
+			insertBeacon = conn.prepareStatement("INSERT INTO `Beacons` ("+BeaconDataValues+") VALUES ( ?, ?, ?, ?, ? )");
 		} catch (SQLException e) {
 			e.printStackTrace();
+			System.out.println("The config settings for MobsBeacons have not been set to usable MySQL user and DB");
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			System.exit(1);
 		}
 	}
 	
 	public static PlayerData getPlayer(UUID id){
+		PlayerData pd = new PlayerData();
 		// TODO : Anything
-		return null;
+		return pd;
 	}
 	
 	public static ArrayList<PlayerData> getPlayersFromTeam(TeamData td){
@@ -94,7 +106,19 @@ public class MySQL {
 	}
 	
 	public static BeaconData getBeaconFromBlock(Block block){
-		// TODO : Anything
+		try {
+			getBeaconFromBlock.setInt(1, block.getX());
+			getBeaconFromBlock.setInt(2, block.getY());
+			getBeaconFromBlock.setInt(3, block.getZ());
+			getBeaconFromBlock.execute();
+			ResultSet rs = getBeaconFromBlock.getResultSet();
+			if(rs.next()){
+				return new BeaconData(rs);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 		return null;
 	}
 	
@@ -128,5 +152,32 @@ public class MySQL {
 		ArrayList<BeaconData> bdList = new ArrayList<BeaconData>();
 		// TODO : Anything
 		return bdList;
+	}
+
+	public static void createWildBeacon(Block b) {
+		if(b == null){ System.out.println("Error - adding wild null beacon. How?"); }
+		BeaconData bd = new BeaconData();
+		bd.setBeacon(b);
+		bd.setRadius(rand.nextInt(6)+7);
+		bd.setTeamId(-1);
+		insertBeacon(bd, b);
+	}
+
+	/**
+	 * Doubles up usage of Block because getBeacon can return null during world load
+	 * @param bd
+	 * @param beacon
+	 */
+	private static void insertBeacon(BeaconData bd, Block beacon) {
+		try {
+			insertBeacon.setInt(1, beacon.getX());
+			insertBeacon.setInt(2, beacon.getY());
+			insertBeacon.setInt(3, beacon.getZ());
+			insertBeacon.setInt(4, bd.getTeamId());
+			insertBeacon.setInt(5, bd.getRadius());
+			insertBeacon.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 }
