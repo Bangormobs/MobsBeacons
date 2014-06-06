@@ -6,16 +6,19 @@ import java.util.Random;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.generator.BlockPopulator;
 
 public class BeaconPopulator extends BlockPopulator {
 
 	@Override
 	public void populate(World world, Random rand, Chunk chunk) {
+		if(chunk.getX() % 8 != 0){ return; }
+		if(chunk.getZ() % 8 != 0){ return; }
 		ArrayList<PossibleBeaconPosition> bPosList = new ArrayList<PossibleBeaconPosition>();
 		// Populate a list with all possible options from a 2d/top-down view
-		for(int x = 0; x<16; x++){
-			for(int z = 0; z<16; z++){
+		for(int x = 3; x<13; x++){
+			for(int z = 3; z<13; z++){
 				bPosList.add(new PossibleBeaconPosition(x,z));
 			}
 		}
@@ -26,7 +29,7 @@ public class BeaconPopulator extends BlockPopulator {
 			if(height > 0 && height < (world.getMaxHeight()-2)){ // Be sure it's a valid value
 				Material toPlace = Material.BEACON;
 				for(int y=height; y<(world.getMaxHeight()-1); y++){
-					chunk.getBlock(maybeThisOne.x, height, maybeThisOne.z).setType(toPlace);
+					chunk.getBlock(maybeThisOne.x, y, maybeThisOne.z).setType(toPlace);
 					toPlace = Material.AIR;
 				}
 				return;
@@ -37,7 +40,7 @@ public class BeaconPopulator extends BlockPopulator {
 	}
 	
 	public int getBeaconHeight(World world, Chunk chunk, int x, int z){
-		for(int y = world.getMaxHeight(); y>0; y--){
+		for(int y = world.getMaxHeight()-1; y>0; y--){
 			Material m = chunk.getBlock(x, y, z).getType();
 			if(m == Material.GRASS || m == Material.DIRT || m == Material.GRAVEL || m == Material.SAND || m == Material.MYCEL || m == Material.STAINED_CLAY || m == Material.HARD_CLAY){
 				// Allow placing above an obvious ground-type block

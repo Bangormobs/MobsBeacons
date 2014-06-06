@@ -90,7 +90,7 @@ public class BeaconListener implements Listener{
 		if(blockTeam == null){
 			// "Wild" Land
 			Material m = event.getBlock().getType();
-			if(m == Material.LOG || m == Material.LOG_2 || m == Material.LEAVES || m == Material.LEAVES_2 || m == Material.LONG_GRASS || m == Material.GRASS || m == Material.DIRT || m == Material.STAINED_CLAY || m == Material.HARD_CLAY || m == Material.CLAY){
+			if(m == Material.LOG || m == Material.LOG_2 || m == Material.LEAVES || m == Material.LEAVES_2 || m == Material.LONG_GRASS || m == Material.GRASS || m == Material.DIRT || m == Material.STAINED_CLAY || m == Material.HARD_CLAY || m == Material.CLAY || m == Material.SAND || m == Material.GRAVEL){
 				// Allowed to take from wild
 			}else{
 				event.setCancelled(true);
