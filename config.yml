@@ -1,0 +1,4 @@
+sql-username: SQLLogin
+sql-password: SQLPassword
+sql-database: DB
+sql-ip: localhost
