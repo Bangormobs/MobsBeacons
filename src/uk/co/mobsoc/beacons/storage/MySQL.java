@@ -78,30 +78,75 @@ public class MySQL {
 	
 	public static PlayerData getPlayer(UUID id){
 		PlayerData pd = new PlayerData();
-		// TODO : Anything
+		try {
+			getPlayer.setBytes(1, uuidToBytes(id));
+			getPlayer.execute();
+			ResultSet rs = getPlayer.getResultSet();
+			if(rs.next()){
+				pd = new PlayerData(rs);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return pd;
 	}
 	
 	public static ArrayList<PlayerData> getPlayersFromTeam(TeamData td){
 		ArrayList<PlayerData> pdList = new ArrayList<PlayerData>();
-		// TODO : Anything
+		try{
+			getPlayersFromTeam.setInt(1, td.getTeamId());
+			getPlayersFromTeam.execute();
+			ResultSet rs = getPlayersFromTeam.getResultSet();
+			while(rs.next()){
+				pdList.add(new PlayerData(rs));
+			}
+		}catch(SQLException e){
+			e.printStackTrace();
+		}
 		return pdList;
 	}
 	
 	public static TeamData getTeam(int id){
-		// TODO : Anything
+		try {
+			getTeam.setInt(1, id);
+			getTeam.execute();
+			ResultSet rs = getTeam.getResultSet();
+			if(rs.next()){
+				return new TeamData(rs);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 	
 	public static ArrayList<TeamData> getAllTeams(){
 		ArrayList<TeamData> tdList = new ArrayList<TeamData>();
-		// TODO : Anything
+		try {
+			getAllTeams.execute();
+			ResultSet rs = getAllTeams.getResultSet();
+			while(rs.next()){
+				tdList.add(new TeamData(rs));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return tdList;
 	}
 	
 	public static ArrayList<BeaconData> getBeaconsFromTeam(TeamData td){
 		ArrayList<BeaconData> bdList = new ArrayList<BeaconData>();
-		// TODO : Anything
+		try {
+			getBeaconsFromTeam.setInt(1, td.getTeamId());
+			getBeaconsFromTeam.execute();
+			ResultSet rs = getBeaconsFromTeam.getResultSet();
+			while(rs.next()){
+				bdList.add(new BeaconData(rs));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 		return bdList;
 	}
 	
@@ -150,7 +195,15 @@ public class MySQL {
 
 	public static ArrayList<BeaconData> getAllBeacons() {
 		ArrayList<BeaconData> bdList = new ArrayList<BeaconData>();
-		// TODO : Anything
+		try {
+			getAllBeacons.execute();
+			ResultSet rs = getAllBeacons.getResultSet();
+			while(rs.next()){
+				bdList.add(new BeaconData(rs));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		return bdList;
 	}
 
