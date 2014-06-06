@@ -76,6 +76,7 @@ public class BeaconListener implements Listener{
 	}
 	public boolean isAboveBeacon(Block b){
 		BeaconData bd = getBeaconFromBlock(b);
+		if(bd == null){ return false; } // Not stored beacon-data. Let's hope
 		return bd.getBeacon().getX() == b.getX() &&
 				   bd.getBeacon().getZ() == b.getZ() &&
 				   bd.getBeacon().getY() < b.getY();
@@ -89,7 +90,7 @@ public class BeaconListener implements Listener{
 		if(blockTeam == null){
 			// "Wild" Land
 			Material m = event.getBlock().getType();
-			if(m == Material.LOG || m == Material.LOG_2 || m == Material.LEAVES || m == Material.LEAVES_2 || m == Material.LONG_GRASS || m == Material.GRASS || m == Material.DIRT){
+			if(m == Material.LOG || m == Material.LOG_2 || m == Material.LEAVES || m == Material.LEAVES_2 || m == Material.LONG_GRASS || m == Material.GRASS || m == Material.DIRT || m == Material.STAINED_CLAY || m == Material.HARD_CLAY || m == Material.CLAY){
 				// Allowed to take from wild
 			}else{
 				event.setCancelled(true);

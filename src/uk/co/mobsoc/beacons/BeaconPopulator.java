@@ -39,7 +39,7 @@ public class BeaconPopulator extends BlockPopulator {
 	public int getBeaconHeight(World world, Chunk chunk, int x, int z){
 		for(int y = world.getMaxHeight(); y>0; y--){
 			Material m = chunk.getBlock(x, y, z).getType();
-			if(m == Material.GRASS || m == Material.DIRT || m == Material.GRAVEL || m == Material.SAND || m == Material.MYCEL){
+			if(m == Material.GRASS || m == Material.DIRT || m == Material.GRAVEL || m == Material.SAND || m == Material.MYCEL || m == Material.STAINED_CLAY || m == Material.HARD_CLAY){
 				// Allow placing above an obvious ground-type block
 				return y + 1;
 			}else if(m == Material.LEAVES || m == Material.LEAVES_2 || m == Material.RED_MUSHROOM || m == Material.RED_ROSE || m == Material.YELLOW_FLOWER || m == Material.BROWN_MUSHROOM || m == Material.AIR || m == Material.LONG_GRASS || m == Material.DEAD_BUSH){
