@@ -9,6 +9,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.generator.BlockPopulator;
 
+import uk.co.mobsoc.beacons.storage.MySQL;
+
 public class BeaconPopulator extends BlockPopulator {
 
 	@Override
@@ -28,6 +30,7 @@ public class BeaconPopulator extends BlockPopulator {
 			int height = getBeaconHeight(world, chunk, maybeThisOne.x, maybeThisOne.z);
 			if(height > 0 && height < (world.getMaxHeight()-2)){ // Be sure it's a valid value
 				Material toPlace = Material.BEACON;
+				MySQL.createWildBeacon(chunk.getBlock(maybeThisOne.x, height, maybeThisOne.z));
 				for(int y=height; y<(world.getMaxHeight()-1); y++){
 					chunk.getBlock(maybeThisOne.x, y, maybeThisOne.z).setType(toPlace);
 					toPlace = Material.AIR;
