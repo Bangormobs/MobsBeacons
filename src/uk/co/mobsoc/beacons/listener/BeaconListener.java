@@ -16,7 +16,9 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.world.WorldInitEvent;
 
+import uk.co.mobsoc.beacons.BeaconPopulator;
 import uk.co.mobsoc.beacons.Plugin;
 import uk.co.mobsoc.beacons.storage.BeaconData;
 import uk.co.mobsoc.beacons.storage.MySQL;
@@ -229,5 +231,12 @@ public class BeaconListener implements Listener{
 			}
 		}
 		event.setRespawnLocation(l);
+	}
+
+	// Spawn Beacons at random intervals
+	
+	@EventHandler
+	public void onWorldInit(WorldInitEvent e){
+		e.getWorld().getPopulators().add(new BeaconPopulator());
 	}
 }
