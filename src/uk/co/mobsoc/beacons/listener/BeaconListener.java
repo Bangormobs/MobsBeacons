@@ -182,7 +182,7 @@ public class BeaconListener implements Listener{
 		if(td!=null){
 			ArrayList<BeaconData> bdList = MySQL.getBeaconsFromTeam(td);
 			for(BeaconData bd : bdList){
-				// TODO : Check proximity of threat Teams or Mobs. Disallow a base that is surrounded from spawning players
+				if(bd.isThreatNearby(pd.getTeamId())){ continue; }
 				double newDist = death.distanceSquared(bd.getBeacon().getLocation());
 				if(newDist < lowest){
 					lowest = newDist;
