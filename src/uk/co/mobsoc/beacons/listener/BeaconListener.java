@@ -3,6 +3,7 @@ package uk.co.mobsoc.beacons.listener;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -30,6 +31,7 @@ public class BeaconListener implements Listener{
 
 	public BeaconListener(Plugin plugin){
 		this.plugin = plugin;
+		Bukkit.getPluginManager().registerEvents(this, this.plugin);
 	}
 	
 	// Land-Protection
