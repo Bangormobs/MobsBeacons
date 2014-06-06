@@ -6,6 +6,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import uk.co.mobsoc.beacons.listener.BeaconListener;
 import uk.co.mobsoc.beacons.listener.EventListen;
 import uk.co.mobsoc.beacons.storage.MySQL;
+import uk.co.mobsoc.beacons.timers.ClaimingWildTimer;
 import uk.co.mobsoc.beacons.transientdata.Event;
 
 public class Plugin extends JavaPlugin {
@@ -17,6 +18,7 @@ public class Plugin extends JavaPlugin {
 		MySQL.prepareMySQL(IP, userName, passWord , dataBase);
 		new EventListen(this);
 		new BeaconListener(this);
+		new ClaimingWildTimer(this);
 	}
 	
 	@Override
