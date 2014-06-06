@@ -38,20 +38,8 @@ public class ClaimingWildTimer implements Runnable{
 						inactiveList.remove(bc);
 						
 						// Check for presence of threats.
-						List<Entity> nearbyEntities = Util.getNearbyEntities(bBeacon.getLocation(),30); // TODO Abitrary number from docs. Check if it's usable in testing
-						boolean threatNearby = false;
-						for(Entity e : nearbyEntities){
-							if(e instanceof Player){
-								Player nearbyPlayer = (Player) e;
-								PlayerData pd = MySQL.getPlayer(nearbyPlayer.getUniqueId());
-								if(pd.getTeamId()!=-1 && pd.getTeamId() != player.getTeamId()){
-									// Different teams
-									threatNearby = true;
-									break;
-								}
-							}
-						}
-						if(threatNearby){ continue; }
+						
+						if(bd.isThreatNearby(player.getTeamId())){ continue; }
 						
 						bc.progress++;
 					}

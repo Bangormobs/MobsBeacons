@@ -2,11 +2,15 @@ package uk.co.mobsoc.beacons.storage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
 import uk.co.mobsoc.beacons.Plugin;
+import uk.co.mobsoc.beacons.Util;
 
 /**
  * Storage for all owned or previously owned beacons
@@ -76,6 +80,22 @@ public class BeaconData {
 			// Inside this beacon area
 			return true;
 		}
+	}
+	
+	public boolean isThreatNearby(int teamId){
+		List<Entity> nearbyEntities = Util.getNearbyEntities(getBeacon().getLocation(),30); // TODO Abitrary number from docs. Check if it's usable in testing
+		boolean threatNearby = false;
+		for(Entity e : nearbyEntities){
+			if(e instanceof Player){
+				Player nearbyPlayer = (Player) e;
+				PlayerData pd = MySQL.getPlayer(nearbyPlayer.getUniqueId());
+				if(pd.getTeamId()!=-1 && pd.getTeamId() != teamId){
+					// Different teams
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 }
