@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -17,10 +18,12 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.WorldInitEvent;
 
 import uk.co.mobsoc.beacons.BeaconPopulator;
 import uk.co.mobsoc.beacons.Plugin;
+import uk.co.mobsoc.beacons.Util;
 import uk.co.mobsoc.beacons.storage.BeaconData;
 import uk.co.mobsoc.beacons.storage.MySQL;
 import uk.co.mobsoc.beacons.storage.PlayerData;
@@ -35,58 +38,12 @@ public class BeaconListener implements Listener{
 	}
 	
 	// Land-Protection
-	public boolean isBeacon(Block b){
-		Material type = b.getType();
-		if(type == Material.BEACON){ return true; }
-		if(type == Material.IRON_BLOCK || type == Material.GOLD_BLOCK || 
-		   type == Material.DIAMOND_BLOCK || type == Material.EMERALD_BLOCK ||
-		   type == Material.COAL_BLOCK || type == Material.LAPIS_BLOCK ||
-		   type == Material.REDSTONE_BLOCK || type == Material.QUARTZ_BLOCK){
-			// Might be Beacon base
-			for(int x = -1 ; x < 2 ; x ++){
-				for(int z = -1 ; z < 2 ; z++){
-					if(b.getRelative(x, 1, z).getType() == Material.BEACON){
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
-	public BeaconData getBeaconFromBlock(Block block){
-		ArrayList<BeaconData> bdList = MySQL.getAllBeacons();
-		for(BeaconData bd : bdList){
-			if(bd.isInsideRadius(block)){
-				return bd;
-			}
-		}
-		return null;	
-	}
-	public TeamData getTeamFromBlock(Block block){
-		ArrayList<TeamData> tdList = MySQL.getAllTeams();
-		for(TeamData td : tdList){
-			ArrayList<BeaconData> bdList = MySQL.getBeaconsFromTeam(td);
-			for(BeaconData bd : bdList){
-				if(bd.isInsideRadius(block)){
-					return td;
-				}
-			}
-		}
-		return null;
-	}
-	public boolean isAboveBeacon(Block b){
-		BeaconData bd = getBeaconFromBlock(b);
-		if(bd == null){ return false; } // Not stored beacon-data. Let's hope
-		return bd.getBeacon().getX() == b.getX() &&
-				   bd.getBeacon().getZ() == b.getZ() &&
-				   bd.getBeacon().getY() < b.getY();
-	}
 	
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event){
 		if(event.isCancelled()){ return; }
-		if(isBeacon(event.getBlock())){ event.setCancelled(true); return; }
-		TeamData blockTeam = getTeamFromBlock(event.getBlock());
+		if(Util.isBeacon(event.getBlock())){ event.setCancelled(true); return; }
+		TeamData blockTeam = Util.getTeamFromBlock(event.getBlock());
 		if(blockTeam == null){
 			// "Wild" Land
 			Material m = event.getBlock().getType();
@@ -113,8 +70,8 @@ public class BeaconListener implements Listener{
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event){
 		if(event.isCancelled()){ return; }
-		if(isBeacon(event.getBlock())){ event.setCancelled(true); return; }
-		TeamData blockTeam = getTeamFromBlock(event.getBlock());
+		if(Util.isBeacon(event.getBlock())){ event.setCancelled(true); return; }
+		TeamData blockTeam = Util.getTeamFromBlock(event.getBlock());
 		if(blockTeam == null){
 			// "Wild" Land
 			event.setCancelled(true);
@@ -127,7 +84,7 @@ public class BeaconListener implements Listener{
 			TeamData playerTeam = MySQL.getTeam(playerData.getTeamId());
 			if(playerTeam.getTeamId() == blockTeam.getTeamId()){
 				// Same team
-				if(isAboveBeacon(event.getBlock())){
+				if(Util.isAboveBeacon(event.getBlock())){
 					// Cannot place blocks above beacon
 					event.setCancelled(true);
 				}
@@ -142,7 +99,7 @@ public class BeaconListener implements Listener{
 	public void onBlockInteract(PlayerInteractEvent event){
 		if(event.isCancelled()){ return; }
 		if(!event.hasBlock()){ return; }
-		TeamData blockTeam = getTeamFromBlock(event.getClickedBlock());
+		TeamData blockTeam = Util.getTeamFromBlock(event.getClickedBlock());
 		if(blockTeam == null){
 			// "Wild" Land
 			return;
@@ -165,11 +122,11 @@ public class BeaconListener implements Listener{
 		// Disallow pushing blocks over boundraries
 		if(event.isCancelled()){ return; }
 		if(event.getBlocks().size()==0){ return; }
-		TeamData td = getTeamFromBlock(event.getBlocks().get(0));
+		TeamData td = Util.getTeamFromBlock(event.getBlocks().get(0));
 		for(Block b : event.getBlocks()){
-			TeamData td2 = getTeamFromBlock(b);
-			if(isAboveBeacon(b)){ event.setCancelled(true); return; }
-			if(isBeacon(b)){ event.setCancelled(true); return; }
+			TeamData td2 = Util.getTeamFromBlock(b);
+			if(Util.isAboveBeacon(b)){ event.setCancelled(true); return; }
+			if(Util.isBeacon(b)){ event.setCancelled(true); return; }
 			if(td2.getTeamId() != td.getTeamId()){
 				event.setCancelled(true);
 				return;
@@ -181,9 +138,9 @@ public class BeaconListener implements Listener{
 	public void onBlockPulled(BlockPistonRetractEvent event){
 		if(event.isCancelled()){ return; }
 		Block pulledBlock = event.getRetractLocation().getBlock();
-		if(isBeacon(pulledBlock)){ event.setCancelled(true); return; }
-		TeamData td = getTeamFromBlock(event.getBlock());
-		if(getTeamFromBlock(pulledBlock).getTeamId() != td.getTeamId()){
+		if(Util.isBeacon(pulledBlock)){ event.setCancelled(true); return; }
+		TeamData td = Util.getTeamFromBlock(event.getBlock());
+		if(Util.getTeamFromBlock(pulledBlock).getTeamId() != td.getTeamId()){
 			event.setCancelled(true);
 			return;
 		}
@@ -192,8 +149,8 @@ public class BeaconListener implements Listener{
 	@EventHandler
 	public void onBlockFlow(BlockFromToEvent event){
 		if(event.isCancelled()){ return; }
-		if(isBeacon(event.getToBlock())){ event.setCancelled(true); return; }
-		if(isAboveBeacon(event.getToBlock())){
+		if(Util.isBeacon(event.getToBlock())){ event.setCancelled(true); return; }
+		if(Util.isAboveBeacon(event.getToBlock())){
 			// Cannot place blocks above beacon
 			event.setCancelled(true);
 		}
@@ -205,7 +162,7 @@ public class BeaconListener implements Listener{
 		Iterator<Block> iter = event.blockList().iterator();
 		while(iter.hasNext()){
 			Block b = iter.next();
-			if(isBeacon(b)){
+			if(Util.isBeacon(b)){
 				iter.remove();
 				//event.blockList().remove(b);
 			}
@@ -240,6 +197,26 @@ public class BeaconListener implements Listener{
 	
 	@EventHandler
 	public void onWorldInit(WorldInitEvent e){
+		if(Plugin.world==null){ Plugin.world = e.getWorld(); System.out.println("World '"+Plugin.world.getName()+"' chosen as primary world"); }
 		e.getWorld().getPopulators().add(new BeaconPopulator());
+	}
+	
+	// Add beacons to DB
+	
+	@EventHandler
+	public void onChunkLoad(ChunkLoadEvent event){
+		Chunk chunk = event.getChunk();
+		for(int x = 3; x<13; x++){
+			for(int z = 3; z<13; z++){
+				Block b= event.getWorld().getHighestBlockAt((chunk.getX()*16)+x, (chunk.getZ()*16)+z);
+				if(b.getType()==Material.BEACON){
+					BeaconData bd = MySQL.getBeaconFromBlock(b);
+					if(bd==null){
+						// Not a registered Beacon
+						MySQL.createWildBeacon(b);
+					}
+				}
+			}
+		}
 	}
 }
