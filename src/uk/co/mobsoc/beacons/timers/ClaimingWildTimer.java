@@ -28,12 +28,17 @@ public class ClaimingWildTimer implements Runnable{
 		for(Player p : Bukkit.getOnlinePlayers()){
 			Block b = p.getLocation().getBlock();
 			BeaconData bd = Util.getBeaconFromBlock(b);
+			if(bd==null){ continue; } // No nearby beacon
 			if(bd.getTeamId()!=-1){ continue; } // Team Beacons should be dealt with another way - maybe here still but we'll see
 			Block bBeacon = bd.getBeacon();
 			PlayerData player = MySQL.getPlayer(p.getUniqueId());
+			if(player.getTeamId() == -1){ continue; } // Team-less players cannot claim
 			if(bBeacon.getLocation().distance(b.getLocation())<=3d){ // 3D? sounds epic! (Means 3 as a double, not 3 as an int)
+				// So they are near a beacon
+				boolean isAlreadyClaiming = false;
 				for(BeaconClaiming bc : lastList){
 					if(bc.isBeacon(bd)){
+						isAlreadyClaiming = true;
 						// This beacon is in a list of transient data on beacons being captured
 						inactiveList.remove(bc);
 						
@@ -42,10 +47,26 @@ public class ClaimingWildTimer implements Runnable{
 						if(bd.isThreatNearby(player.getTeamId())){ continue; }
 						
 						bc.progress++;
+						p.sendMessage("Claiming nearby beacon... "+bc.progress+"% complete");
 					}
-				}				
+				}	
+				if(!isAlreadyClaiming){
+					// Player is starting the capture of this beacon
+					BeaconClaiming newClaiming = new BeaconClaiming();
+					newClaiming.x = bBeacon.getX();
+					newClaiming.y = bBeacon.getY();
+					newClaiming.z = bBeacon.getZ();
+					newClaiming.teamId = player.getTeamId();
+					newClaiming.progress=0;
+					lastList.add(newClaiming);
+				}
 			}
 
+		}
+		for(BeaconClaiming inactive : inactiveList){
+			// Beacons no one is near any longer
+			inactive.progress=0;
+			lastList.remove(inactive);
 		}
 	}
 
