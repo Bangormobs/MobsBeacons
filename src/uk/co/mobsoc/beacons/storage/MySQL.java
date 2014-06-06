@@ -71,8 +71,9 @@ public class MySQL {
 	}
 	
 	public static ArrayList<PlayerData> getPlayersFromTeam(TeamData td){
+		ArrayList<PlayerData> pdList = new ArrayList<PlayerData>();
 		// TODO : Anything
-		return null;
+		return pdList;
 	}
 	
 	public static TeamData getTeam(int id){
@@ -81,13 +82,15 @@ public class MySQL {
 	}
 	
 	public static ArrayList<TeamData> getAllTeams(){
+		ArrayList<TeamData> tdList = new ArrayList<TeamData>();
 		// TODO : Anything
-		return null;
+		return tdList;
 	}
 	
 	public static ArrayList<BeaconData> getBeaconsFromTeam(TeamData td){
+		ArrayList<BeaconData> bdList = new ArrayList<BeaconData>();
 		// TODO : Anything
-		return null;
+		return bdList;
 	}
 	
 	public static BeaconData getBeaconFromBlock(Block block){
@@ -122,7 +125,8 @@ public class MySQL {
 	}
 
 	public static ArrayList<BeaconData> getAllBeacons() {
-		// TODO Anything
-		return null;
+		ArrayList<BeaconData> bdList = new ArrayList<BeaconData>();
+		// TODO : Anything
+		return bdList;
 	}
 }
