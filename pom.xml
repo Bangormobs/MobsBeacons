@@ -30,17 +30,6 @@
         <defaultGoal>install</defaultGoal>
         <!-- Where our source directory is -->
         <sourceDirectory>${basedir}/src</sourceDirectory>
-        <!-- Include all the resources we need -->
-        <resources>
-            <resource>
-                <targetPath>.</targetPath>
-                <filtering>true</filtering>
-                <directory>${basedir}</directory>
-                <includes>
-                    <include>*.yml</include>
-                </includes>
-            </resource>
-        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
