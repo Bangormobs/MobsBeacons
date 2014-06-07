@@ -128,7 +128,6 @@ public class BeaconListener implements Listener{
 		TeamData td = Util.getTeamFromBlock(event.getBlock());
 		Block b = event.getBlock();
 		for(int i = 0; i <= event.getLength()+1; i++){
-			System.out.println(b.getType());
 			TeamData td2 = Util.getTeamFromBlock(b);
 			if(Util.isAboveBeacon(b)){ event.setCancelled(true); return; }
 			if(Util.isBeacon(b)){ event.setCancelled(true); return; }
@@ -163,6 +162,12 @@ public class BeaconListener implements Listener{
 		if(Util.isAboveBeacon(event.getToBlock())){
 			// Cannot place blocks above beacon
 			event.setCancelled(true);
+		}
+		TeamData td = Util.getTeamFromBlock(event.getBlock());
+		TeamData td2 = Util.getTeamFromBlock(event.getToBlock());
+		if((td != td2) && ((td == null && td2 != null) || (td2 == null && td != null) || (td2.getTeamId() != td.getTeamId()))){
+			event.setCancelled(true);
+			return;
 		}
 	}
 	
