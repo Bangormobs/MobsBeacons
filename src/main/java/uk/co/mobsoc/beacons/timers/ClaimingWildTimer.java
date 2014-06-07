@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -56,6 +57,7 @@ public class ClaimingWildTimer implements Runnable{
 							bd.setRadius(40);
 							MySQL.updateBeacon(bd);
 							TeamData td = MySQL.getTeam(player.getTeamId());
+							bd.setBase(Material.IRON_BLOCK);
 							Bukkit.broadcastMessage("'"+td.getTeamName()+"' has captured a Beacon from Wild");
 						}
 					}

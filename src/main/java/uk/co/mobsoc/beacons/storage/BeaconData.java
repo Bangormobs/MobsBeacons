@@ -106,4 +106,13 @@ public class BeaconData {
 	public int getZ(){
 		return beaconz;
 	}
+	public void setBase(Material m) {
+		Block b = getBeacon();
+		for(int x = -1; x < 2; x++){
+			for(int z = -1 ; z < 2; z++){
+				b.getRelative(x, -1, z).setType(m);
+			}
+		}
+		
+	}
 }
