@@ -132,7 +132,9 @@ public class BeaconListener implements Listener{
 			TeamData td2 = Util.getTeamFromBlock(b);
 			if(Util.isAboveBeacon(b)){ event.setCancelled(true); return; }
 			if(Util.isBeacon(b)){ event.setCancelled(true); return; }
-			if(td2.getTeamId() != td.getTeamId()){
+			// That's quite enough of that if.
+			// Null being valid makes this a nice mess.
+			if((td != td2) && ((td == null && td2 != null) || (td2 == null && td!=null) || (td2.getTeamId() != td.getTeamId()))){
 				event.setCancelled(true);
 				return;
 			}
@@ -147,7 +149,8 @@ public class BeaconListener implements Listener{
 		if(Util.isBeacon(pulledBlock)){ event.setCancelled(true); return; }
 		if(Util.isAboveBeacon(event.getBlock())){ event.setCancelled(true); return; }
 		TeamData td = Util.getTeamFromBlock(event.getBlock());
-		if(Util.getTeamFromBlock(pulledBlock).getTeamId() != td.getTeamId()){
+		TeamData td2 = Util.getTeamFromBlock(pulledBlock);
+		if((td != td2) && ((td == null && td2 != null) || (td2 == null && td != null) || (td2.getTeamId() != td.getTeamId()))){
 			event.setCancelled(true);
 			return;
 		}
