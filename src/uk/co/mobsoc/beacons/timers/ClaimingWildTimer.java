@@ -13,6 +13,7 @@ import uk.co.mobsoc.beacons.Util;
 import uk.co.mobsoc.beacons.storage.BeaconData;
 import uk.co.mobsoc.beacons.storage.MySQL;
 import uk.co.mobsoc.beacons.storage.PlayerData;
+import uk.co.mobsoc.beacons.storage.TeamData;
 import uk.co.mobsoc.beacons.transientdata.BeaconClaiming;
 
 public class ClaimingWildTimer implements Runnable{
@@ -48,6 +49,15 @@ public class ClaimingWildTimer implements Runnable{
 						
 						bc.progress++;
 						p.sendMessage("Claiming nearby beacon... "+bc.progress+"% complete");
+						// 300 seconds to claim from wild? Maybe too much
+						if(bc.progress >= 600){
+							inactiveList.add(bc);
+							bd.setTeamId(player.getTeamId());
+							bd.setRadius(40);
+							MySQL.updateBeacon(bd);
+							TeamData td = MySQL.getTeam(player.getTeamId());
+							Bukkit.broadcastMessage("'"+td.getTeamName()+"' has captured a Beacon from Wild");
+						}
 					}
 				}	
 				if(!isAlreadyClaiming){
