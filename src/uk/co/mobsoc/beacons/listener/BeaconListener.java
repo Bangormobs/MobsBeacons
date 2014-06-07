@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -42,6 +43,7 @@ public class BeaconListener implements Listener{
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event){
 		if(event.isCancelled()){ return; }
+		if(event.getPlayer().getGameMode() == GameMode.CREATIVE){ return; } // TODO : Breaking a Beacon removes it from DB too
 		if(Util.isBeacon(event.getBlock())){ event.setCancelled(true); return; }
 		TeamData blockTeam = Util.getTeamFromBlock(event.getBlock());
 		if(blockTeam == null){
@@ -70,6 +72,7 @@ public class BeaconListener implements Listener{
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event){
 		if(event.isCancelled()){ return; }
+		if(event.getPlayer().getGameMode() == GameMode.CREATIVE){ return; }
 		if(Util.isBeacon(event.getBlock())){ event.setCancelled(true); return; }
 		TeamData blockTeam = Util.getTeamFromBlock(event.getBlock());
 		if(blockTeam == null){
@@ -121,9 +124,11 @@ public class BeaconListener implements Listener{
 	public void onBlockPushed(BlockPistonExtendEvent event){
 		// Disallow pushing blocks over boundraries
 		if(event.isCancelled()){ return; }
-		if(event.getBlocks().size()==0){ return; }
-		TeamData td = Util.getTeamFromBlock(event.getBlocks().get(0));
-		for(Block b : event.getBlocks()){
+		//if(event.getBlocks().size()==0){ return; }
+		TeamData td = Util.getTeamFromBlock(event.getBlock());
+		Block b = event.getBlock();
+		for(int i = 0; i <= event.getLength()+1; i++){
+			System.out.println(b.getType());
 			TeamData td2 = Util.getTeamFromBlock(b);
 			if(Util.isAboveBeacon(b)){ event.setCancelled(true); return; }
 			if(Util.isBeacon(b)){ event.setCancelled(true); return; }
@@ -131,6 +136,7 @@ public class BeaconListener implements Listener{
 				event.setCancelled(true);
 				return;
 			}
+			b = b.getRelative(event.getDirection());
 		}
 	}
 	
@@ -139,6 +145,7 @@ public class BeaconListener implements Listener{
 		if(event.isCancelled()){ return; }
 		Block pulledBlock = event.getRetractLocation().getBlock();
 		if(Util.isBeacon(pulledBlock)){ event.setCancelled(true); return; }
+		if(Util.isAboveBeacon(event.getBlock())){ event.setCancelled(true); return; }
 		TeamData td = Util.getTeamFromBlock(event.getBlock());
 		if(Util.getTeamFromBlock(pulledBlock).getTeamId() != td.getTeamId()){
 			event.setCancelled(true);
@@ -176,7 +183,6 @@ public class BeaconListener implements Listener{
 		Location death = event.getPlayer().getLocation();
 		Location l = Plugin.world.getSpawnLocation();
 		double lowest = death.distanceSquared(l);
-		event.setRespawnLocation(l);
 		PlayerData pd = MySQL.getPlayer(event.getPlayer().getUniqueId());
 		TeamData td = MySQL.getTeam(pd.getTeamId());
 		if(td!=null){
@@ -190,6 +196,7 @@ public class BeaconListener implements Listener{
 				}
 			}
 		}
+		l= l.add(0.5, 0.5, 0.5);
 		event.setRespawnLocation(l);
 	}
 
