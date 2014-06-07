@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 
 /**
@@ -20,9 +22,9 @@ import org.bukkit.block.Block;
  */
 public class MySQL {
 	private static Random rand = new Random();
-	private static PreparedStatement getPlayer, getPlayersFromTeam;
+	private static PreparedStatement getPlayer, getPlayersFromTeam, addPlayer;
 	private static PreparedStatement getTeam, getAllTeams;
-	private static PreparedStatement getBeaconsFromTeam, getBeaconFromBlock, getAllBeacons, insertBeacon;
+	private static PreparedStatement getBeaconsFromTeam, getBeaconFromBlock, getAllBeacons, insertBeacon, updateBeacon;
 	
 	public static void prepareMySQL(String IP, String userName, String passWord, String dataBase){
 		Statement stat;
@@ -54,6 +56,7 @@ public class MySQL {
 			stat.execute("CREATE TABLE IF NOT EXISTS `Team` (`id` int(11), `name` varchar(20), PRIMARY KEY(`id`));");
 			
 			String PlayerDataValues = "`uuid`, `name`, `team`";
+			addPlayer = conn.prepareStatement("INSERT INTO `Player` ("+PlayerDataValues+") VALUES ( ? , ?, ? )");
 			getPlayer = conn.prepareStatement("SELECT "+PlayerDataValues+" FROM `Player` WHERE `uuid`=?");
 			getPlayersFromTeam = conn.prepareStatement("SELECT "+PlayerDataValues+" FROM `Player` WHERE `team`=?");
 			String TeamDataValues = "`id`, `name`";
@@ -64,6 +67,7 @@ public class MySQL {
 			getBeaconFromBlock = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons` WHERE `x` = ? AND `y` = ? AND `z` = ?");
 			getAllBeacons = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons`");
 			insertBeacon = conn.prepareStatement("INSERT INTO `Beacons` ("+BeaconDataValues+") VALUES ( ?, ?, ?, ?, ? )");
+			updateBeacon = conn.prepareStatement("UPDATE `Beacons` SET `team` = ?, `radius` = ? WHERE `x`=? AND `y`=? AND `z`=?");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println("The config settings for MobsBeacons have not been set to usable MySQL user and DB");
@@ -88,9 +92,29 @@ public class MySQL {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		if(pd.getName()==null || pd.getName().length()==0){
+			// Player is not yet set
+			Player p = Bukkit.getServer().getPlayer(id);
+			if(p!=null){
+				pd.setIdent(p.getUniqueId());
+				pd.setName(p.getName());
+				addPlayer(pd);
+			}
+		}
 		return pd;
 	}
 	
+	private static void addPlayer(PlayerData pd) {
+		try {
+			addPlayer.setBytes(1, uuidToBytes(pd.getIdent()));
+			addPlayer.setString(2, pd.getName());
+			addPlayer.setInt(3, pd.getTeamId());
+			addPlayer.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static ArrayList<PlayerData> getPlayersFromTeam(TeamData td){
 		ArrayList<PlayerData> pdList = new ArrayList<PlayerData>();
 		try{
@@ -232,5 +256,19 @@ public class MySQL {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void updateBeacon(BeaconData bd){
+		try {
+			updateBeacon.setInt(1, bd.getTeamId());
+			updateBeacon.setInt(2, bd.getRadius());
+			updateBeacon.setInt(3, bd.getX());
+			updateBeacon.setInt(4, bd.getY());
+			updateBeacon.setInt(5, bd.getZ());
+			updateBeacon.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 	}
 }
