@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public class PlayerData {
 	private UUID ident;
-	private String name;
+	private String name="";
 	private int team=-1;
 	public PlayerData(ResultSet rs) {
 		try {
