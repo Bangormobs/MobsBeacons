@@ -97,5 +97,13 @@ public class BeaconData {
 		}
 		return false;
 	}
-	
+	public int getX(){
+		return beaconx;
+	}
+	public int getY(){
+		return beacony;
+	}
+	public int getZ(){
+		return beaconz;
+	}
 }
