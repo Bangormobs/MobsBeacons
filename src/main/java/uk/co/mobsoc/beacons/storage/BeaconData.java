@@ -84,12 +84,11 @@ public class BeaconData {
 	
 	public boolean isThreatNearby(int teamId){
 		List<Entity> nearbyEntities = Util.getNearbyEntities(getBeacon().getLocation(),30); // TODO Abitrary number from docs. Check if it's usable in testing
-		boolean threatNearby = false;
 		for(Entity e : nearbyEntities){
 			if(e instanceof Player){
 				Player nearbyPlayer = (Player) e;
 				PlayerData pd = MySQL.getPlayer(nearbyPlayer.getUniqueId());
-				if(pd.getTeamId()!=-1 && pd.getTeamId() != teamId){
+				if(pd.getTeamId() != teamId){
 					// Different teams
 					return true;
 				}
