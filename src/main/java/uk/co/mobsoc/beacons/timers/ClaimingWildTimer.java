@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -28,6 +29,7 @@ public class ClaimingWildTimer implements Runnable{
 		@SuppressWarnings("unchecked")
 		ArrayList<BeaconClaiming> inactiveList = (ArrayList<BeaconClaiming>) lastList.clone();
 		for(Player p : Bukkit.getOnlinePlayers()){
+			if(p.getGameMode() != GameMode.SURVIVAL){ continue; }
 			Block b = p.getLocation().getBlock();
 			BeaconData bd = Util.getBeaconFromBlock(b);
 			if(bd==null){ continue; } // No nearby beacon
@@ -77,8 +79,10 @@ public class ClaimingWildTimer implements Runnable{
 		}
 		for(BeaconClaiming inactive : inactiveList){
 			// Beacons no one is near any longer
-			inactive.progress=0;
-			lastList.remove(inactive);
+			inactive.progress-=10;
+			if(inactive.progress<=0){
+				lastList.remove(inactive);
+			}
 		}
 	}
 
