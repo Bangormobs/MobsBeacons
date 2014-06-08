@@ -70,7 +70,7 @@ public class Util {
 	}
 	public static boolean isInBorder(Location center, Location notCenter, int range) {
 		int x = center.getBlockX(), z = center.getBlockZ(), y = center.getBlockY();
-		int x1 = notCenter.getBlockX(), z1 = notCenter.getBlockZ(), y1 = center.getBlockY();	 
+		int x1 = notCenter.getBlockX(), z1 = notCenter.getBlockZ(), y1 = notCenter.getBlockY();	 
 		if (x1 >= (x + range) || z1 >= (z + range) || x1 <= (x - range) || z1 <= (z - range) || y1 >= (y+range) || y1 <= (y-range)) {
 			return false;
 		}
