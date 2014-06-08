@@ -61,7 +61,7 @@ public class BeaconListener implements Listener{
 			// No player data?
 		}else{
 			TeamData playerTeam = MySQL.getTeam(playerData.getTeamId());
-			if(playerTeam.getTeamId() == blockTeam.getTeamId()){
+			if(playerTeam != null && playerTeam.getTeamId() == blockTeam.getTeamId()){
 				// Same team
 			}else{
 				event.setCancelled(true);
@@ -85,7 +85,7 @@ public class BeaconListener implements Listener{
 			// No player data?
 		}else{
 			TeamData playerTeam = MySQL.getTeam(playerData.getTeamId());
-			if(playerTeam.getTeamId() == blockTeam.getTeamId()){
+			if(playerTeam!= null && playerTeam.getTeamId() == blockTeam.getTeamId()){
 				// Same team
 				if(Util.isAboveBeacon(event.getBlock())){
 					// Cannot place blocks above beacon
@@ -112,7 +112,7 @@ public class BeaconListener implements Listener{
 			// No player data?
 		}else{
 			TeamData playerTeam = MySQL.getTeam(playerData.getTeamId());
-			if(playerTeam.getTeamId() == blockTeam.getTeamId()){
+			if(playerTeam !=null && playerTeam.getTeamId() == blockTeam.getTeamId()){
 				// Same team
 			}else{
 				event.setCancelled(true);
@@ -196,9 +196,10 @@ public class BeaconListener implements Listener{
 		if(td!=null){
 			ArrayList<BeaconData> bdList = MySQL.getBeaconsFromTeam(td);
 			for(BeaconData bd : bdList){
-				if(bd.isThreatNearby(pd.getTeamId())){ continue; }
+				if(bd.isThreatNearby(pd.getTeamId())){ System.out.println("Thread too close to "+bd.getBeacon()); continue; }
 				double newDist = death.distanceSquared(bd.getBeacon().getLocation());
 				if(newDist < lowest){
+					System.out.println("Nearest Beacon so far - "+bd.getBeacon());
 					lowest = newDist;
 					l = bd.getBeacon().getLocation();
 				}
