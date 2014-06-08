@@ -4,6 +4,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
+
 public class PlayerData {
 	private UUID ident;
 	private String name="";
@@ -36,6 +39,9 @@ public class PlayerData {
 	}
 	public void setTeamId(int team) {
 		this.team = team;
+	}
+	public OfflinePlayer getPlayer() {
+		return Bukkit.getOfflinePlayer(getIdent());
 	}
 	
 }
