@@ -90,6 +90,14 @@ public class PrelimTeam {
 	public void removePlayer(Player player) {
 		playersInTeam.remove(player.getUniqueId());
 	}
+
+	public int getSize() {
+		return playersInTeam.size();
+	}
+
+	public ArrayList<UUID> getPlayers() {
+		return playersInTeam;
+	}
 	
 	
 
