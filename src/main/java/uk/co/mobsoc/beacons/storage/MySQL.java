@@ -22,9 +22,10 @@ import org.bukkit.entity.Player;
  */
 public class MySQL {
 	private static Random rand = new Random();
-	private static PreparedStatement getPlayer, getPlayersFromTeam, addPlayer;
-	private static PreparedStatement getTeam, getAllTeams;
+	private static PreparedStatement getPlayer, getPlayersFromTeam, addPlayer, updatePlayer;
+	private static PreparedStatement getTeam, getAllTeams, insertTeam, updateTeam;
 	private static PreparedStatement getBeaconsFromTeam, getBeaconFromBlock, getAllBeacons, insertBeacon, updateBeacon;
+	private static PreparedStatement getLastInsert;
 	
 	public static void prepareMySQL(String IP, String userName, String passWord, String dataBase){
 		Statement stat;
@@ -53,21 +54,26 @@ public class MySQL {
 			stat.executeUpdate(s);
 			stat.execute("CREATE TABLE IF NOT EXISTS `Beacons` (`x` int (11), `y` int(11), `z` int(11), `team` int(11) DEFAULT '-1', `radius` int(11), PRIMARY KEY(`x`,`y`,`z`));");
 			stat.execute("CREATE TABLE IF NOT EXISTS `Player` (`uuid` binary(16), `name` varchar(16), `team` int(11), PRIMARY KEY(`uuid`));");
-			stat.execute("CREATE TABLE IF NOT EXISTS `Team` (`id` int(11), `name` varchar(20), PRIMARY KEY(`id`));");
+			stat.execute("CREATE TABLE IF NOT EXISTS `Team` (`id` int(11) auto_increment, `name` varchar(20), `score` int(11), PRIMARY KEY(`id`));");
 			
 			String PlayerDataValues = "`uuid`, `name`, `team`";
 			addPlayer = conn.prepareStatement("INSERT INTO `Player` ("+PlayerDataValues+") VALUES ( ? , ?, ? )");
 			getPlayer = conn.prepareStatement("SELECT "+PlayerDataValues+" FROM `Player` WHERE `uuid`=?");
 			getPlayersFromTeam = conn.prepareStatement("SELECT "+PlayerDataValues+" FROM `Player` WHERE `team`=?");
-			String TeamDataValues = "`id`, `name`";
+			updatePlayer = conn.prepareStatement("UPDATE `Player` SET `name`=?, `team`=? WHERE `uuid`= ?");
+			String TeamDataValues = "`id`, `name`, `score`";
 			getTeam = conn.prepareStatement("SELECT "+TeamDataValues+" FROM `Team` WHERE `id`=?");
 			getAllTeams = conn.prepareStatement("SELECT "+TeamDataValues+" FROM `Team`");
+			insertTeam = conn.prepareStatement("INSERT INTO `Team` (`name`, `score`) VALUES ( ? , ? )");
+			updateTeam = conn.prepareStatement("UPDATE `Team` SET `name`=?, `score`=? WHERE `id`=?");
 			String BeaconDataValues = "`x`, `y`, `z`, `team`, `radius`";
 			getBeaconsFromTeam = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons` WHERE `team`=?");
 			getBeaconFromBlock = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons` WHERE `x` = ? AND `y` = ? AND `z` = ?");
 			getAllBeacons = conn.prepareStatement("SELECT "+BeaconDataValues+" FROM `Beacons`");
 			insertBeacon = conn.prepareStatement("INSERT INTO `Beacons` ("+BeaconDataValues+") VALUES ( ?, ?, ?, ?, ? )");
 			updateBeacon = conn.prepareStatement("UPDATE `Beacons` SET `team` = ?, `radius` = ? WHERE `x`=? AND `y`=? AND `z`=?");
+			
+			getLastInsert = conn.prepareStatement("SELECT LAST_INSERT_ID()");
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println("The config settings for MobsBeacons have not been set to usable MySQL user and DB");
@@ -258,7 +264,32 @@ public class MySQL {
 		}
 	}
 	
-	public static void updateBeacon(BeaconData bd){
+	public static int insertTeam(TeamData td){
+		try{
+			insertTeam.setString(1, td.getTeamName());
+			insertTeam.setInt(2, td.getScore());
+			insertTeam.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return getLastInsert();
+	}
+	
+	private static int getLastInsert() {
+		try {
+			getLastInsert.execute();
+			ResultSet rs = getLastInsert.getResultSet();
+			if(rs.next()){
+				return rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return -1;
+	}
+
+	public static void updated(BeaconData bd){
 		try {
 			updateBeacon.setInt(1, bd.getTeamId());
 			updateBeacon.setInt(2, bd.getRadius());
@@ -269,6 +300,28 @@ public class MySQL {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
 
+	public static void updated(PlayerData pd) {
+		try {
+			updatePlayer.setString(1, pd.getPlayer().getName());
+			updatePlayer.setInt(2, pd.getTeamId());
+			updatePlayer.setBytes(3, MySQL.uuidToBytes(pd.getIdent()));
+			updatePlayer.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void updated(TeamData td) {
+		try{
+			updateTeam.setString(1, td.getTeamName());
+			updateTeam.setInt(2, td.getTeamId());
+			updateTeam.setInt(3, td.getTeamId());
+			updateTeam.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 	}
 }
