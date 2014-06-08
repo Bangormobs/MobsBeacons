@@ -57,7 +57,7 @@ public class ClaimingWildTimer implements Runnable{
 							inactiveList.add(bc);
 							bd.setTeamId(player.getTeamId());
 							bd.setRadius(40);
-							MySQL.updateBeacon(bd);
+							MySQL.updated(bd);
 							TeamData td = MySQL.getTeam(player.getTeamId());
 							bd.setBase(Material.IRON_BLOCK);
 							Bukkit.broadcastMessage("'"+td.getTeamName()+"' has captured a Beacon from Wild");
