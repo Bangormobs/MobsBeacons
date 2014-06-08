@@ -1,6 +1,7 @@
 package uk.co.mobsoc.beacons;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -138,6 +139,7 @@ public class Plugin extends JavaPlugin {
     								return true;
     							}
     							pd.setTeamId(ident);
+    							MySQL.updated(pd);
     							sender.sendMessage("You have joined '"+td.getTeamName()+"'");
     							return true;
     						}
@@ -150,6 +152,21 @@ public class Plugin extends JavaPlugin {
     							}
     							pre.addPlayer(player);
     							sender.sendMessage("You have joined '"+pre.getName()+"'");
+    							// Lets see!
+    							if(pre.getSize()>=4){
+    								TeamData td = new TeamData();
+    								td.setTeamName(pre.getName());
+    								td.setScore(1000);
+    								int teamID = MySQL.insertTeam(td);
+    								MySQL.updated(td);
+    								for(UUID uuid : pre.getPlayers()){
+    									PlayerData thisPD = MySQL.getPlayer(uuid);
+    									thisPD.setTeamId(teamID);
+    									MySQL.updated(thisPD);
+    								}
+    								Bukkit.broadcastMessage("New team '"+td.getTeamName()+"' has been formed!");
+    								return true;
+    							}
     							return true;
     						}
     					}else{
@@ -181,7 +198,9 @@ public class Plugin extends JavaPlugin {
     							return true;
     						}
     						pd.setTeamId(-1);
+    						MySQL.updated(pd);
     					}
+    					return true;
     				}
     			}
     		}
