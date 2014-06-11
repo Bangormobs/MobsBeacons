@@ -2,7 +2,6 @@ package uk.co.mobsoc.beacons.storage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;

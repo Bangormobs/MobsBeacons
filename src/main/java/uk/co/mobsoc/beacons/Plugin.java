@@ -74,7 +74,10 @@ public class Plugin extends JavaPlugin {
 	private String teamOptions = b+"["+g+"create"+b+"|"+g+"invite"+b+"|"+g+"join"+b+"|"+g+"leave"+b+"]";
 	private String voteOptions = b+"["+g+"yes"+b+"|"+g+"no"+b+"]";
 	private String startVoteOptions = b+"["+g+"kick"+b+"|"+g+"disband"+b+"]";
-    public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
+	
+	// My OCD says all yellow eclipse warnings must be gone. Now they are
+    @SuppressWarnings("deprecation")
+	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
     	Player player = null;
     	if(sender instanceof Player){
     		player = (Player) sender;

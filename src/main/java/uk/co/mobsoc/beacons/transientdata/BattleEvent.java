@@ -1,6 +1,5 @@
 package uk.co.mobsoc.beacons.transientdata;
 
-import uk.co.mobsoc.beacons.Plugin;
 import uk.co.mobsoc.beacons.storage.MySQL;
 import uk.co.mobsoc.beacons.storage.TeamData;
 

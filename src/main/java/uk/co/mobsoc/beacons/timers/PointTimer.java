@@ -3,7 +3,6 @@ package uk.co.mobsoc.beacons.timers;
 import org.bukkit.Bukkit;
 
 import uk.co.mobsoc.beacons.Plugin;
-import uk.co.mobsoc.beacons.storage.BeaconData;
 import uk.co.mobsoc.beacons.storage.MySQL;
 import uk.co.mobsoc.beacons.storage.TeamData;
 
