@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -64,6 +65,7 @@ public class TeamData {
 			MySQL.updated(disbandedPlayer);
 		}
 		for(BeaconData disbandedBeacon : MySQL.getBeaconsFromTeam(this)){
+			disbandedBeacon.setBase(Material.AIR);
 			disbandedBeacon.setTeamId(-1);
 			MySQL.updated(disbandedBeacon);
 		}
