@@ -3,8 +3,10 @@ package uk.co.mobsoc.beacons;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -13,6 +15,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import uk.co.mobsoc.beacons.listener.BeaconListener;
 import uk.co.mobsoc.beacons.listener.EventListen;
+import uk.co.mobsoc.beacons.listener.MessageListener;
 import uk.co.mobsoc.beacons.storage.MySQL;
 import uk.co.mobsoc.beacons.storage.PlayerData;
 import uk.co.mobsoc.beacons.storage.TeamData;
@@ -20,6 +23,10 @@ import uk.co.mobsoc.beacons.timers.ClaimingWildTimer;
 import uk.co.mobsoc.beacons.transientdata.Event;
 import uk.co.mobsoc.beacons.transientdata.InviteData;
 import uk.co.mobsoc.beacons.transientdata.PrelimTeam;
+import uk.co.mobsoc.beacons.transientdata.TeamVote;
+import uk.co.mobsoc.beacons.transientdata.TeamVote.VoteChange;
+import uk.co.mobsoc.beacons.transientdata.TeamVote.VoteChoice;
+import uk.co.mobsoc.beacons.transientdata.TeamVote.VoteFor;
 
 public class Plugin extends JavaPlugin {
 	public static World world;
@@ -31,6 +38,7 @@ public class Plugin extends JavaPlugin {
 		new EventListen(this);
 		new BeaconListener(this);
 		new ClaimingWildTimer(this);
+		new MessageListener(this);
 	}
 	
 	@Override
@@ -58,8 +66,10 @@ public class Plugin extends JavaPlugin {
 	}
 	
 	private ChatColor b=ChatColor.BLUE,g=ChatColor.GREEN,r=ChatColor.RESET;
-	private String options = b+"["+g+"team"+b+"|"+g+"event"+b+"]";
+	private String options = b+"["+g+"team"+b+"|"+g+"startvote"+b+"|"+g+"vote"+b+"]";
 	private String teamOptions = b+"["+g+"create"+b+"|"+g+"invite"+b+"|"+g+"join"+b+"|"+g+"leave"+b+"]";
+	private String voteOptions = b+"["+g+"yes"+b+"|"+g+"no"+b+"]";
+	private String startVoteOptions = b+"["+g+"kick"+b+"|"+g+"disband"+b+"]";
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args){
     	Player player = null;
     	if(sender instanceof Player){
@@ -69,7 +79,136 @@ public class Plugin extends JavaPlugin {
     		sender.sendMessage("/beacons "+options);
     		return true;
     	}else{
-    		if(args[0].equalsIgnoreCase("team")){
+    		if(args[0].equalsIgnoreCase("startvote")){
+    			if(args.length==1){
+    				sender.sendMessage("/beacons startvote "+startVoteOptions);
+    				return true;
+    			}
+    			if(player==null){
+    				sender.sendMessage("Voting requires being in a team");
+    				return true;
+    			}
+    			PlayerData pd = MySQL.getPlayer(player.getUniqueId());
+    			TeamData td = MySQL.getTeam(pd.getTeamId());
+    			if(td==null){
+    				sender.sendMessage("Voting requires being in a team!");
+    				return true;
+    			}
+    			if(TeamVote.getTeamVote(td.getTeamId())!=null){
+    				sender.sendMessage("A vote is already being held. Finish that one first!");
+    				return true;
+    			}
+    			if(args[1].equalsIgnoreCase("kick")){
+    				if(args.length==2){
+    					sender.sendMessage("/beacons startvote kick PlayerName");
+    					return true;
+    				}
+    				if(td.getTeamSize()<=4){
+    					sender.sendMessage("Your team is too small to kick another player. Vote to disband instead");
+    					return true;
+    				}
+    				OfflinePlayer p = Bukkit.getOfflinePlayer(args[2]);
+    				PlayerData mayKick = MySQL.getPlayer(p.getUniqueId());
+    				if(mayKick.getTeamId() != td.getTeamId()){
+    					sender.sendMessage("That player is not in your team");
+    					return true;
+    				}
+    				TeamVote newVote = new TeamVote();
+    				newVote.setKickPlayer(p.getUniqueId());
+    				newVote.setVotingFor(VoteFor.Kick);
+    				newVote.setTeamId(td.getTeamId());
+    				
+    			}else if(args[1].equalsIgnoreCase("disband")){
+    				TeamVote newVote = new TeamVote();
+    				newVote.setVotingFor(VoteFor.Disband);
+    				newVote.setTeamId(td.getTeamId());
+    			}
+    			return true;
+    		}else if(args[0].equalsIgnoreCase("vote")){
+    			if(args.length==1){
+    				sender.sendMessage("/beacons vote "+voteOptions);
+    				return true;
+    			}
+    			if(player==null){
+    				sender.sendMessage("Voting requires being in a team");
+    				return true;
+    			}
+    			PlayerData pd = MySQL.getPlayer(player.getUniqueId());
+    			TeamData td = MySQL.getTeam(pd.getTeamId());
+    			if(td==null){
+    				sender.sendMessage("Voting requires being in a team!");
+    				return true;
+    			}
+    			VoteChoice vc = null;
+    			if(args[1].equalsIgnoreCase("yes")){
+    				vc = VoteChoice.Yes;
+    			}else if(args[1].equalsIgnoreCase("no")){
+    				vc = VoteChoice.No;
+    			}
+    			TeamVote tv = TeamVote.getTeamVote(td.getTeamId());
+    			if(tv==null){
+    				sender.sendMessage("No vote is being held. Sorry!");
+    				return true;
+    			}
+    			VoteChange changed = tv.setPlayerVote(player.getUniqueId(), vc);
+    			if(changed == VoteChange.First){
+    				sender.sendMessage("Voted set!");
+    			}else if(changed == VoteChange.Changed){
+    				sender.sendMessage("Vote changed! Make your mind up!");
+    			}else{
+    				sender.sendMessage("You already voted!");
+    			}
+    			if(changed != VoteChange.Same){
+    				// Recalculate
+    				int yes = tv.getVotes(VoteChoice.Yes), no = tv.getVotes(VoteChoice.No), unknown = td.getTeamSize();
+    				String s = tv.getReason();
+    				s = s + ChatColor.RED+StringUtils.repeat(TeamVote.yes, yes);
+    				s = s + ChatColor.DARK_BLUE+StringUtils.repeat(TeamVote.unknown, unknown);
+    				s = s + ChatColor.DARK_RED+StringUtils.repeat(TeamVote.no, no);
+    				td.sendAll(s);
+    			}
+    			VoteChoice result = tv.hasCompleted();
+    			if(result == null){
+    				// We're fine - continue!
+    			}else if(result == VoteChoice.Yes){
+    				// They voted yes. To what?
+    				if(tv.getVotingFor() == VoteFor.Kick){
+    					if(td.getTeamSize()<=4){
+    						td.sendAll("Team too small to complete a kick.");
+    						tv.endVote();
+    						return true;
+    					}
+    					PlayerData kickedPlayer = MySQL.getPlayer(tv.getKickPlayer());
+    					String name = kickedPlayer.getPlayer().getName();
+    					td.sendAll("Vote passed : "+name+" kicked from team");
+    					kickedPlayer.setTeamId(-1);
+    					MySQL.updated(kickedPlayer);
+    					Bukkit.broadcastMessage(name+" was kicked from '"+td.getTeamName()+"'");
+    					tv.endVote();
+    					return true;
+    				}else if(tv.getVotingFor() == VoteFor.Disband){
+    					td.sendAll("Vote passed : Team disbanded");
+    					Bukkit.broadcastMessage("'"+td.getTeamName()+"' was disbanded");
+    					tv.endVote();
+    					td.disband();
+    					return true;
+    				}
+    			}else if(result == VoteChoice.No){
+    				if(tv.getVotingFor() == VoteFor.Kick){
+    					PlayerData kickedPlayer = MySQL.getPlayer(tv.getKickPlayer());
+    					String name = kickedPlayer.getPlayer().getName();
+    					td.sendAll("Vote failed : "+name+" kept in team");
+    					tv.endVote();
+    					return true;
+    				}else if(tv.getVotingFor() == VoteFor.Disband){
+    					td.sendAll("Vote failed : Team kept intact");
+    					Bukkit.broadcastMessage("'"+td.getTeamName()+"' was disbanded");
+    					tv.endVote();
+    					return true;
+    				}
+    			}
+    			return true;
+    		}else if(args[0].equalsIgnoreCase("team")){
     			if(args.length==1){
     				sender.sendMessage("/beacons team "+teamOptions);
     				return true;
