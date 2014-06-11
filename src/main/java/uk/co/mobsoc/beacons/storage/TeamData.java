@@ -2,6 +2,12 @@ package uk.co.mobsoc.beacons.storage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
+
+import uk.co.mobsoc.beacons.listener.MessageListener;
 
 public class TeamData {
 	private int teamId = -1, score=0;
@@ -34,6 +40,34 @@ public class TeamData {
 	}
 	public void setScore(int score) {
 		this.score = score;
+	}
+	public int getTeamSize(){
+		return MySQL.getPlayersFromTeam(this).size();
+	}
+	public void sendAll(String s) {
+		for(PlayerData pd :MySQL.getPlayersFromTeam(this)){
+			OfflinePlayer p = pd.getPlayer();
+			if(p.isOnline()){
+				Player player = p.getPlayer();
+				player.sendMessage(s);
+			}else{
+				MessageListener.setMessage(p.getUniqueId(), s);
+			}
+		}
+	}
+	/**
+	 * Disband a team - unclaim all land - remove all players to non-team
+	 */
+	public void disband() {
+		for(PlayerData disbandedPlayer : MySQL.getPlayersFromTeam(this)){
+			disbandedPlayer.setTeamId(-1);
+			MySQL.updated(disbandedPlayer);
+		}
+		for(BeaconData disbandedBeacon : MySQL.getBeaconsFromTeam(this)){
+			disbandedBeacon.setTeamId(-1);
+			MySQL.updated(disbandedBeacon);
+		}
+		// TODO : Remove self from DB
 	}
 	
 }
