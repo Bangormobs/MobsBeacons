@@ -20,6 +20,7 @@ import uk.co.mobsoc.beacons.storage.MySQL;
 import uk.co.mobsoc.beacons.storage.PlayerData;
 import uk.co.mobsoc.beacons.storage.TeamData;
 import uk.co.mobsoc.beacons.timers.ClaimingWildTimer;
+import uk.co.mobsoc.beacons.timers.PointTimer;
 import uk.co.mobsoc.beacons.transientdata.Event;
 import uk.co.mobsoc.beacons.transientdata.InviteData;
 import uk.co.mobsoc.beacons.transientdata.PrelimTeam;
@@ -37,8 +38,11 @@ public class Plugin extends JavaPlugin {
 		MySQL.prepareMySQL(IP, userName, passWord , dataBase);
 		new EventListen(this);
 		new BeaconListener(this);
-		new ClaimingWildTimer(this);
 		new MessageListener(this);
+		
+		new ClaimingWildTimer(this);
+		new PointTimer(this);
+		
 	}
 	
 	@Override
