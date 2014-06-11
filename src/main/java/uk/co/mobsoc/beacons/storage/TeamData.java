@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -68,6 +69,19 @@ public class TeamData {
 			MySQL.updated(disbandedBeacon);
 		}
 		// TODO : Remove self from DB
+	}
+	/**
+	 * Adds or removes points from team score - disbands if total points drops to or below 0
+	 * @param i
+	 */
+	public void addScore(int i) {
+		setScore(getScore()+i);
+		if(getScore() <= 0){
+			// Oh dear!
+			disband();
+			Bukkit.broadcastMessage("'"+getTeamName()+"' has lost too many points and disbanded!");
+		}
+		MySQL.updated(this);
 	}
 	
 }
