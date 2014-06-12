@@ -284,6 +284,10 @@ public class Plugin extends JavaPlugin {
     								sender.sendMessage("Cannot join a team that disbanded");
     								return true;
     							}
+    							if(td.getTeamSize()>=10){
+    								sender.sendMessage("This team is full.");
+    								return true;
+    							}
     							pd.setTeamId(ident);
     							MySQL.updated(pd);
     							sender.sendMessage("You have joined '"+td.getTeamName()+"'");
