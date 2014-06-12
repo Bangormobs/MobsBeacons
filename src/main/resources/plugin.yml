@@ -2,3 +2,7 @@ name: MobsBeacons
 main: uk.co.mobsoc.beacons.Plugin
 version: 0.1
 load: STARTUP
+commands:
+   beacons:
+      description: Beacon-PvP commands
+      usage: /beacons [stuff]
